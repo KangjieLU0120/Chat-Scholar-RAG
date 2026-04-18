@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Essay Grading - Chat Scholar</title>
+
+    <style>
+        body{
+            font-family:Arial;
+            background:#f4f6f8;
+            margin:0;
+        }
+
+        h1{
+            background:#2c3e50;
+            color:white;
+            text-align:center;
+            padding:15px;
+        }
+
+        .container{
+            max-width:800px;
+            margin:20px auto;
+            background:white;
+            padding:20px;
+            border-radius:8px;
+            box-shadow:0 0 10px rgba(0,0,0,0.1);
+        }
+
+        textarea{
+            width:100%;
+            height:200px;
+            padding:10px;
+        }
+
+        button{
+            margin-top:10px;
+            padding:12px;
+            background:#2c3e50;
+            color:white;
+            border:none;
+            cursor:pointer;
+        }
+
+        .result{
+            margin-top:20px;
+            background:#ecf0f1;
+            padding:15px;
+            border-radius:8px;
+            white-space:pre-wrap;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>📝 Essay Grading</h1>
+
+<div class="container">
+
+<form method="POST">
+    <textarea name="essay_text"
+        placeholder="Paste your essay here..."
+        required></textarea>
+
+    <button type="submit">Grade Essay</button>
+</form>
+
+{% if result %}
+<div class="result">
+{{ result }}
+</div>
+{% endif %}
+
+</div>
+
+</body>
+</html>
