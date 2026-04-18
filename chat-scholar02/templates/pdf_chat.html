@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Scholar</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background:#f4f6f8;
+            margin:0;
+        }
+
+        h1{
+            background:#2c3e50;
+            color:white;
+            text-align:center;
+            padding:15px;
+            margin:0;
+        }
+
+        .chat-container{
+            max-width:800px;
+            margin:20px auto;
+            background:white;
+            height:65vh;
+            overflow-y:auto;
+            padding:20px;
+            border-radius:8px;
+            box-shadow:0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .message{
+            padding:10px 15px;
+            margin:10px 0;
+            border-radius:15px;
+            max-width:70%;
+            word-wrap: break-word;
+        }
+
+        .user{
+            background:#3498db;
+            color:white;
+            margin-left:auto;
+            text-align:right;
+        }
+
+        .assistant{
+            background:#ecf0f1;
+            margin-right:auto;
+        }
+
+        .input-area{
+            max-width:800px;
+            margin:10px auto;
+            display:flex;
+            gap:10px;
+        }
+
+        input[type="text"]{
+            flex:1;
+            padding:12px;
+        }
+
+        button{
+            padding:12px;
+            background:#2c3e50;
+            color:white;
+            border:none;
+            cursor:pointer;
+        }
+
+        .upload-box{
+            text-align:center;
+            margin:15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>📘 Chat Scholar</h1>
+
+<div style="text-align:center;margin:10px;">
+    <a href="/clear-chat" style="
+        background:#e74c3c;
+        color:white;
+        padding:10px 15px;
+        text-decoration:none;
+        border-radius:5px;">
+        🧹 Clear Chat
+    </a>
+</div>
+
+<!-- ================= PDF Upload ================= -->
+<div class="upload-box">
+<form method="POST" enctype="multipart/form-data" action="/pdf-chat">
+    <input type="file" name="pdf_file" accept=".pdf" required>
+    <button type="submit">Upload PDF</button>
+</form>
+</div>
+<div style="max-width:800px;margin:10px auto;background:white;
+padding:10px;border-radius:8px;box-shadow:0 0 5px rgba(0,0,0,0.1);">
+
+<h3>📚 Knowledge Base</h3>
+
+{% if documents %}
+    <ul>
+        {% for doc in documents %}
+            <li>✅ {{ doc }}</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No documents uploaded yet.</p>
+{% endif %}
+
+</div>
+
+
+<!-- ================= Chat Window ================= -->
+<div class="chat-container" id="chatBox">
+
+{% if chat_history %}
+    {% for message in chat_history %}
+        <div class="message {{ message.role }}">
+            {{ message.content }}
+        </div>
+    {% endfor %}
+{% else %}
+    <p>Start chatting with Chat Scholar!</p>
+{% endif %}
+
+</div>
+
+<!-- ================= Chat Input ================= -->
+<div class="input-area">
+    <input type="text" id="userInput" placeholder="Ask something..." />
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+<script>
+
+const chatBox = document.getElementById("chatBox");
+chatBox.scrollTop = chatBox.scrollHeight;
+
+async function sendMessage(){
+
+    const input = document.getElementById("userInput");
+    const message = input.value.trim();
+
+    if(!message) return;
+
+    input.value = "";
+
+    // Show user message
+    chatBox.innerHTML += `
+        <div class="message user">${message}</div>
+    `;
+
+    // Create AI message box
+    const aiDiv = document.createElement("div");
+    aiDiv.className = "message assistant";
+    chatBox.appendChild(aiDiv);
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    // Streaming POST request
+    const response = await fetch("/stream-chat", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ message: message })
+    });
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        aiDiv.innerHTML += chunk.replace(/data:/g, "");
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+}
+
+</script>
+
+
+</body>
+</html>
