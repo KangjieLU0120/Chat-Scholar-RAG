@@ -1,201 +1,128 @@
-# 📘 Chat Scholar — AI Academic Assistant
+# 📘 Chat-Scholar-RAG: A Lightweight RAG System on Personal Laptop
 
-Chat Scholar is an AI-powered academic assistant that enables students to interact with documents and receive intelligent academic support.  
-The system combines Retrieval-Augmented Generation (RAG), local Large Language Models, and semantic vector search to provide accurate, grounded answers from uploaded PDFs along with automated essay evaluation.
-
-This project demonstrates a production-style AI architecture using local models, vector databases, and real-time streaming responses.
+**Chat-Scholar-RAG** is a high-privacy, low-cost academic assistant designed to run entirely on personal hardware. By integrating **Layout-aware Parsing**, **Hybrid Retrieval**, and an **Agentic Self-Correction Loop**, the system overcomes common limitations of traditional RAG systems when handling complex academic PDFs—such as structural loss, low retrieval precision, and model hallucinations.
 
 ---
 
-## 🚀 Features
+## 👥 Member List & Responsibilities
 
-### 📄 PDF Chat (RAG-Based Question Answering)
-- Upload academic PDFs and ask questions naturally.
-- Semantic search retrieves relevant document sections.
-- AI answers strictly using document context.
-- Source citation included in responses.
-- Supports multiple PDFs in a shared knowledge base.
+| Name | Student ID | Core Responsibilities (Sections Covered) |
+| :--- | :--- | :--- |
+| **CHENG Yiyang** | 25048768G | **Ingestion Module**: Layout-aware document parsing pipeline, structure-based semantic chunking, and metadata indexing. |
+| **WEI Zixian** | 25108555G | **Retrieval & Generation**: Hybrid retrieval pipeline (BM25 + FAISS), Agentic self-correction loop, and final report consolidation. |
+| **LU Kangjie** | 25118211G | **Evaluation & Data**: Academic testing dataset pre-processing, quantitative evaluation framework (RAGAS), and performance analysis. |
 
-### 🧠 Semantic Retrieval
-- Text chunking and embedding generation.
-- Vector similarity search using FAISS.
-- Meaning-based retrieval instead of keyword matching.
+---
 
-### ⚡ Streaming AI Responses
-- ChatGPT-style live typing responses.
-- Real-time token streaming from local LLM.
+## 🚀 Key Technical Innovations
 
-### 📝 Essay Grading System
-- Automatic academic essay evaluation.
-- Provides:
-  - Overall score
-  - Strengths & weaknesses
-  - Grammar feedback
-  - Improvement suggestions
+### 1. Layout-Aware Ingestion
+Unlike standard text splitters, our system recognizes the structural hierarchy of academic papers:
+- **Hierarchical Extraction**: Automatically identifies headers, sub-headers, paragraphs, and lists.
+- **Semantic Chunking**: Segments text based on logical structure rather than arbitrary character counts.
+- **Context Preservation**: Retains section-level metadata to ensure high-quality grounding and accurate citations.
 
-### 💾 Persistent Knowledge Base
-- Vector database saved locally.
-- Knowledge survives server restarts.
-- Incremental indexing when new PDFs are added.
+### 2. Hybrid Retrieval Pipeline
+Combines the strengths of traditional keyword matching and modern semantic search:
+- **BM25 + FAISS**: Uses BM25 for precise term matching and FAISS for conceptual similarity.
+- **Reciprocal Rank Fusion (RRF)**: Merges results from both streams to provide the most relevant context to the LLM.
+
+### 3. Agentic Self-Correction Loop
+Inspired by the Self-RAG framework, the system includes a reflection mechanism:
+- **Relevance Check**: Evaluates if the retrieved context is sufficient to answer the query.
+- **Hallucination Detection**: Audits the generated response against the source text to prevent logical errors.
+
+### 4. Quantitative Evaluation (RAGAS)
+The system was rigorously tested using the **RAGAS** framework across multiple dimensions:
+- **Faithfulness**: Ensuring answers are derived solely from the context.
+- **Answer Relevance**: Measuring how well the response addresses the user's prompt.
+- **Context Precision**: Evaluating the quality of the retrieval engine.
 
 ---
 
 ## 🏗️ System Architecture
 
-User Uploads PDF  
-        ↓  
-Text Extraction (PyPDF2)  
-        ↓  
-Text Chunking  
-        ↓  
-Embeddings (Ollama - nomic-embed-text)  
-        ↓  
-FAISS Vector Database  
-        ↓  
-Semantic Retrieval  
-        ↓  
-TinyLlama LLM (Ollama)  
-        ↓  
-Grounded Answer + Source Citation  
+```text
+User Query
+    ↓
+Hybrid Retrieval ──→ [BM25 Keyword Search] + [FAISS Vector Search]
+    ↓
+RRF Re-ranking (Merging results)
+    ↓
+Agentic Reasoning ←── [Ollama: Llama3 / TinyLlama]
+    ↓
+Self-Reflection & Correction
+    ↓
+Final Grounded Answer + Source Citations
+```
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology |
-|------|------------|
-| Backend | Flask (Python) |
-| LLM Runtime | Ollama |
-| Language Model | TinyLlama |
-| Embeddings | nomic-embed-text |
-| Vector Database | FAISS |
-| PDF Processing | PyPDF2 |
-| Frontend | HTML, CSS, JavaScript |
-| Streaming | Fetch Streaming API |
+| Component | Technology |
+| :--- | :--- |
+| **Backend Framework** | Flask (Python) |
+| **LLM Runtime** | Ollama |
+| **Language Models** | Llama3-8B / TinyLlama |
+| **Embedding Model** | nomic-embed-text |
+| **Vector Database** | FAISS |
+| **Evaluation Tool** | RAGAS Framework |
+| **Frontend** | HTML5, CSS3, JavaScript (Streaming API) |
 
 ---
 
 ## 📂 Project Structure
 
-Chat-Scholar/
-
-├── app/  
-│   ├── routes/  
-│   │   └── main_routes.py  
-│   ├── services/  
-│   │   ├── ai_service.py  
-│   │   └── embedding_service.py  
-│   ├── utils/  
-│   │   ├── pdf_reader.py  
-│   │   ├── text_chunker.py  
-│   │   ├── vector_store.py  
-│   │   └── document_registry.py  
-
-├── templates/  
-│   ├── pdf_chat.html  
-│   └── essay_grading.html  
-
-├── vector_db/  
-├── data/  
-├── app.py  
-└── README.md  
+```text
+Chat-Scholar-RAG/
+├── app/
+│   ├── routes/          # Flask route handlers (main_routes.py)
+│   ├── services/        # Core logic (ai_service.py, embedding_service.py)
+│   └── utils/           # Utilities (pdf_reader.py, text_chunker.py, vector_store.py)
+├── config/              # Configuration files (setting.py)
+├── data/                # Sample academic PDF documents
+├── templates/           # Frontend templates (pdf_chat.html, home.html)
+├── vector_db/           # Local persistent indices (FAISS, BM25 Index)
+├── evaluate_academic.py # RAGAS evaluation scripts
+├── app.py               # Main application entry point
+└── requirements.txt     # Python dependencies
+```
 
 ---
 
 ## ⚙️ Installation & Setup
 
-### 1️⃣ Clone Repository
-git clone https://github.com/your-username/chat-scholar.git  
-cd chat-scholar
+### 1. Environment Setup
+```bash
+# Clone the repository
+git clone https://github.com/KangjieLU0120/Chat-Scholar-RAG.git
+cd Chat-Scholar-RAG
 
-### 2️⃣ Create Virtual Environment
-python -m venv venv  
+# Create and activate a virtual environment
+python -m venv venv
+# On Windows:
 venv\Scripts\activate
+```
 
-### 3️⃣ Install Dependencies
-pip install -r requirements.txt
-
-### 4️⃣ Install Ollama
-Download from:  
-https://ollama.com
-
-### 5️⃣ Pull Required Models
-ollama pull tinyllama  
+### 2. Model Installation (via Ollama)
+Ensure [Ollama](https://ollama.com/) is installed and running:
+```bash
+ollama pull llama3
 ollama pull nomic-embed-text
+```
 
-### 6️⃣ Start Ollama
-ollama serve
-
-### 7️⃣ Run Application
+### 3. Run the Application
+```bash
+pip install -r requirements.txt
 python app.py
-
-Open browser:
-
-http://127.0.0.1:5000
-
----
-
-## 🧪 How to Use
-
-### PDF Chat
-1. Navigate to PDF Chat page.
-2. Upload a PDF document.
-3. Ask questions related to the document.
-4. Receive grounded answers with citations.
-
-### Essay Grading
-1. Open Essay Grading page.
-2. Paste student essay.
-3. Click Grade Essay.
-4. View structured evaluation feedback.
-
----
-
-## 🎯 Key AI Concepts Demonstrated
-
-- Retrieval-Augmented Generation (RAG)
-- Vector Embeddings & Semantic Search
-- Local LLM Deployment
-- Context Grounding
-- Streaming Token Responses
-- Persistent Vector Databases
-
----
-
-## 💡 Why This Project Matters
-
-Most AI chat applications rely on cloud APIs.  
-Chat Scholar demonstrates how to build a fully local, privacy-friendly AI assistant using open-source models and modern AI engineering practices.
-
----
-
-## 📈 Future Improvements
-
-- Multi-user authentication
-- Document highlighting for citations
-- PDF page-level referencing
-- Async indexing for large documents
-- Advanced evaluation rubrics for essays
-
----
-
-## 👨‍💻 Author
-
-Charan Kamalakara
-
-AI & Machine Learning Developer  
-Focused on building intelligent systems using LLMs, Retrieval Systems, and Applied AI Engineering.
-
----
-
-## ⭐ Acknowledgements
-
-- Ollama
-- FAISS (Meta AI)
-- Open-source LLM community
+```
+Open your browser and navigate to `http://127.0.0.1:5000`.
 
 ---
 
 ## 📜 License
+This project is for educational and research purposes only.
 
-This project is for educational and research purposes.
+---
+**Last updated: April 2026 | ARTIFICIAL INTELLIGENCE AND BIG DATA COMPUTING IN PRACTICE DSAI5201_20252_A**
