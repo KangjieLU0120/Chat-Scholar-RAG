@@ -42,18 +42,87 @@ The system was rigorously tested using the **RAGAS** framework across multiple d
 
 ## 🏗️ System Architecture
 
+```text
+User Query
+    ↓
+Hybrid Retrieval ──→ [BM25 Keyword Search] + [FAISS Vector Search]
+    ↓
+RRF Re-ranking (Merging results)
+    ↓
+Agentic Reasoning ←── [Ollama: Llama3 / TinyLlama]
+    ↓
+Self-Reflection & Correction
+    ↓
+Final Grounded Answer + Source Citations
+```
+
 ---
 
 ## 🛠️ Tech Stack
 
 | Component | Technology |
 | :--- | :--- |
-| Backend Framework | Flask (Python) |
-| LLM Runtime | Ollama |
-| Language Models | Llama3-8B / TinyLlama |
-| Embedding Model | nomic-embed-text |
-| Vector Database | FAISS |
-| Evaluation Tool | RAGAS Framework |
-| Frontend | HTML5, CSS3, JavaScript (Streaming API) |
+| **Backend Framework** | Flask (Python) |
+| **LLM Runtime** | Ollama |
+| **Language Models** | Llama3-8B / TinyLlama |
+| **Embedding Model** | nomic-embed-text |
+| **Vector Database** | FAISS |
+| **Evaluation Tool** | RAGAS Framework |
+| **Frontend** | HTML5, CSS3, JavaScript (Streaming API) |
 
 ---
+
+## 📂 Project Structure
+
+```text
+Chat-Scholar-RAG/
+├── app/
+│   ├── routes/          # Flask route handlers (main_routes.py)
+│   ├── services/        # Core logic (ai_service.py, embedding_service.py)
+│   └── utils/           # Utilities (pdf_reader.py, text_chunker.py, vector_store.py)
+├── config/              # Configuration files (setting.py)
+├── data/                # Sample academic PDF documents
+├── templates/           # Frontend templates (pdf_chat.html, home.html)
+├── vector_db/           # Local persistent indices (FAISS, BM25 Index)
+├── evaluate_academic.py # RAGAS evaluation scripts
+├── app.py               # Main application entry point
+└── requirements.txt     # Python dependencies
+```
+
+---
+
+## ⚙️ Installation & Setup
+
+### 1. Environment Setup
+```bash
+# Clone the repository
+git clone https://github.com/KangjieLU0120/Chat-Scholar-RAG.git
+cd Chat-Scholar-RAG
+
+# Create and activate a virtual environment
+python -m venv venv
+# On Windows:
+venv\Scripts\activate
+```
+
+### 2. Model Installation (via Ollama)
+Ensure [Ollama](https://ollama.com/) is installed and running:
+```bash
+ollama pull llama3
+ollama pull nomic-embed-text
+```
+
+### 3. Run the Application
+```bash
+pip install -r requirements.txt
+python app.py
+```
+Open your browser and navigate to `http://127.0.0.1:5000`.
+
+---
+
+## 📜 License
+This project is for educational and research purposes only.
+
+---
+**Last updated: April 2026 | ARTIFICIAL INTELLIGENCE AND BIG DATA COMPUTING IN PRACTICE DSAI5201_20252_A**
